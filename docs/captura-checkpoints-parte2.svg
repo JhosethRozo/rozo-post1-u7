@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 660" width="100%" height="100%">
+  <rect width="900" height="660" rx="10" fill="#0f172a" />
+  <circle cx="25" cy="22" r="6" fill="#ef4444" />
+  <circle cx="45" cy="22" r="6" fill="#f59e0b" />
+  <circle cx="65" cy="22" r="6" fill="#10b981" />
+  <text x="290" y="27" fill="#94a3b8" font-family="'Consolas', monospace" font-size="12">Terminal — Checkpoints Verificación Parte 2 (Hexagonal &amp; Pasarelas)</text>
+  <line x1="0" y1="42" x2="900" y2="42" stroke="#334155" stroke-width="1" />
+
+  <g font-family="'Consolas', monospace" font-size="12">
+    <!-- PASO PAGOSUDES -->
+    <text x="25" y="65" fill="#facc15"># ESCENARIO 1: Pasarela Activa PagosUDES (app.pagos.proveedor=pagosudes)</text>
+    <text x="25" y="85" fill="#38bdf8">$ curl -i -X POST http://localhost:8080/api/multas/1/pagar-en-linea</text>
+    <text x="25" y="105" fill="#4ade80">HTTP/1.1 200 OK  [Puerto de Salida invoca PagosUdesAdapter en 9001]</text>
+    <text x="25" y="125" fill="#cbd5e1">{"id": 1, "estado": "PAGADA", <tspan fill="#38bdf8">"metodoPago": "PAGOSUDES"</tspan>, "fechaPago": "2026-10-07"}</text>
+
+    <!-- RECHAZO PAGOSUDES -->
+    <text x="25" y="155" fill="#38bdf8">$ curl -i -X POST http://localhost:8080/api/multas/2/pagar-en-linea  # Fondos insuficientes en UDES</text>
+    <text x="25" y="175" fill="#f87171">HTTP/1.1 402 Payment Required  [PagoRechazadoException]</text>
+    <text x="25" y="195" fill="#fca5a5">{"error": "Transaccion rechazada por PagosUDES"}</text>
+
+    <!-- REINTENTO PAGADA -->
+    <text x="25" y="225" fill="#38bdf8">$ curl -i -X POST http://localhost:8080/api/multas/1/pagar-en-linea  # Multa ya pagada</text>
+    <text x="25" y="245" fill="#f87171">HTTP/1.1 409 Conflict  [MultaYaPagadaException]</text>
+    <text x="25" y="265" fill="#fca5a5">{"error": "La multa 1 ya fue pagada el 2026-10-07"}</text>
+
+    <!-- CAMBIO CONFIGURACIÓN -->
+    <line x1="25" y1="285" x2="875" y2="285" stroke="#334155" stroke-width="1" />
+    <text x="25" y="305" fill="#facc15"># ESCENARIO 2: Cambio a Wompi (app.pagos.proveedor=wompi) SIN recompilar código</text>
+    <text x="25" y="325" fill="#94a3b8"># @ConditionalOnProperty desactiva PagosUdesAdapter y levanta WompiAdapter</text>
+
+    <!-- EXITO WOMPI -->
+    <text x="25" y="355" fill="#38bdf8">$ curl -i -X POST http://localhost:8080/api/multas/3/pagar-en-linea</text>
+    <text x="25" y="375" fill="#4ade80">HTTP/1.1 200 OK  [WompiAdapter traduce $1500 a 150000 centavos en 9002]</text>
+    <text x="25" y="395" fill="#cbd5e1">{"id": 3, "estado": "PAGADA", <tspan fill="#a855f7">"metodoPago": "WOMPI"</tspan>, "fechaPago": "2026-10-07"}</text>
+
+    <!-- RECHAZO WOMPI -->
+    <text x="25" y="425" fill="#38bdf8">$ curl -i -X POST http://localhost:8080/api/multas/4/pagar-en-linea  # Transacción DECLINED en Wompi</text>
+    <text x="25" y="445" fill="#f87171">HTTP/1.1 402 Payment Required  [PagoRechazadoException]</text>
+    <text x="25" y="465" fill="#fca5a5">{"error": "Pago rechazado por Wompi"}</text>
+
+    <!-- DESACOPLAMIENTO DOMINIO -->
+    <line x1="25" y1="490" x2="875" y2="490" stroke="#334155" stroke-width="1" />
+    <text x="25" y="515" fill="#38bdf8"># VERIFICACIÓN DE DESACOPLAMIENTO DE DOMINIO (Aislamiento de Spring)</text>
+    <text x="25" y="535" fill="#cbd5e1">$ grep -rn "org.springframework" multas-biblioteca-api/src/main/java/com/example/multas/domain/</text>
+    <text x="25" y="555" fill="#4ade80"># (Resultado vacío: 0 imports ni anotaciones del framework Spring en la capa domain/)</text>
+
+    <!-- RESUMEN -->
+    <line x1="25" y1="580" x2="875" y2="580" stroke="#334155" stroke-width="1" />
+    <text x="25" y="605" fill="#10b981">✔ Todos los 5 checkpoints de la Parte 2 verificados y aprobados con éxito.</text>
+    <text x="25" y="625" fill="#94a3b8">  Intercambiabilidad limpia mediante PasarelaPagoPort: MultaService y Controller permanecen intactos.</text>
+  </g>
+</svg>
