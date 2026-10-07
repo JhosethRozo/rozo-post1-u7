@@ -50,4 +50,10 @@ public class MultaController {
     public Multa pagarEnVentanilla(@PathVariable Long id) {
         return multaService.pagarEnVentanilla(id);
     }
+
+    // Parte 2: Pago en línea a través del puerto de dominio
+    @PostMapping("/{id}/pagar-en-linea")
+    public Multa pagarEnLinea(@PathVariable Long id) {
+        return multaService.pagarConPasarela(id);
+    }
 }
